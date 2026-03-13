@@ -1,11 +1,54 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Box, Flex, Text } from '@chakra-ui/react'
+import {
+  Link as ChakraLink,
+  Box,
+  Flex,
+  Text,
+  TreeView,
+  createTreeCollection,
+  Highlight,
+  useFilter,
+  IconButton,
+} from '@chakra-ui/react'
 import { ColorModeButton } from '#/components/ui/color-mode'
 import { cookbookNav } from '#/utils/cookbook-api'
-import { LuGithub, LuChevronDown, LuSearch, LuX } from 'react-icons/lu'
+import { LuGithub, LuSearch, LuX, LuChevronRight, LuFileText } from 'react-icons/lu'
 
-// ── Search box ─────────────────────────────────────────────────────────────────
+// ── Types ───────────────────────────────────────────────────────────────────
+
+interface NavNode {
+  id: string
+  name: string
+  slug?: string | null
+  children?: NavNode[]
+}
+
+// ── Build tree collection from cookbookNav ──────────────────────────────────
+
+function buildCollection(sections: typeof cookbookNav.sections) {
+  const children: NavNode[] = sections.map((section) => {
+    if (section.files.length === 0) {
+      return { id: section.slug, name: section.name, slug: section.indexSlug ?? section.slug }
+    }
+    return {
+      id: section.slug,
+      name: section.name,
+      slug: section.indexSlug,
+      children: section.files.map((f) => ({ id: f.slug, name: f.name, slug: f.slug })),
+    }
+  })
+
+  return createTreeCollection<NavNode>({
+    nodeToValue: (node) => node.id,
+    nodeToString: (node) => node.name,
+    rootNode: { id: 'ROOT', name: '', children },
+  })
+}
+
+const initialCollection = buildCollection(cookbookNav.sections)
+
+// ── Search box ─────────────────────────────────────────────────────────────
 
 function SearchBox({
   value,
@@ -65,65 +108,134 @@ function SearchBox({
   )
 }
 
-// ── Search results ─────────────────────────────────────────────────────────────
+// ── Section / file icons ────────────────────────────────────────────────────
 
-function SearchResults({
-  query,
+const leafIcon = <LuFileText size={12} style={{ flexShrink: 0, opacity: 0.4 }} />
+
+// ── Nav tree ────────────────────────────────────────────────────────────────
+
+function NavTree({
   currentSlug,
   onNavigate,
 }: {
-  query: string
   currentSlug: string
   onNavigate?: () => void
 }) {
-  const q = query.toLowerCase().trim()
-  if (!q) return null
+  const { contains } = useFilter({ sensitivity: 'base' })
 
-  const allFiles = cookbookNav.sections.flatMap((s) => [
-    ...(s.indexSlug ? [{ slug: s.indexSlug, name: s.name, section: s.name }] : []),
-    ...s.files.map((f) => ({ ...f, section: s.name })),
-  ])
-
-  const results = allFiles.filter(
-    (f) => f.name.toLowerCase().includes(q) || f.section.toLowerCase().includes(q),
+  const defaultExpanded = useMemo(() =>
+    initialCollection.rootNode.children
+      ?.filter((s) => s.children?.some((f) => f.slug === currentSlug) || s.slug === currentSlug)
+      .map((s) => s.id) ?? [],
+    [currentSlug],
   )
 
+  const [collection, setCollection] = useState(initialCollection)
+  const [expanded, setExpanded] = useState<string[]>(defaultExpanded)
+  const [query, setQuery] = useState('')
+
+  const search = (value: string) => {
+    setQuery(value)
+    if (!value) {
+      setCollection(initialCollection)
+      setExpanded(defaultExpanded)
+      return
+    }
+    const next = initialCollection.filter((node) => contains(node.name, value))
+    setCollection(next)
+    setExpanded(next.getBranchValues())
+  }
+
   return (
-    <Box px="2" pb="2">
-      {results.length === 0 ? (
-        <Text fontSize="xs" color="fg.muted" px="2" py="2">No results</Text>
-      ) : (
-        <Box as="ul" listStyleType="none" p="0" m="0">
-          {results.map((f) => (
-            <Box as="li" key={f.slug}>
-              <Link to="/$" params={{ _splat: f.slug }} onClick={() => onNavigate?.()}>
-                <Box
-                  px="2"
-                  py="1.5"
-                  borderRadius="md"
-                  _hover={{ bg: 'bg.subtle' }}
-                  transition="background 0.1s"
-                >
-                  <Text
-                    fontSize="sm"
-                    fontWeight={currentSlug === f.slug ? '500' : '400'}
-                    color={currentSlug === f.slug ? 'fg' : 'fg'}
-                    lineHeight="1.3"
-                  >
-                    {f.name}
-                  </Text>
-                  <Text fontSize="xs" color="fg.muted">{f.section}</Text>
-                </Box>
-              </Link>
-            </Box>
-          ))}
-        </Box>
-      )}
-    </Box>
+    <>
+      <SearchBox value={query} onChange={search} />
+      <Box mt={2}>
+        <TreeView.Root
+          collection={collection}
+          animateContent
+          size="sm"
+          expandedValue={expanded}
+          onExpandedChange={(d) => setExpanded(d.expandedValue)}
+        >
+          <TreeView.Tree>
+            <TreeView.Node<NavNode>
+              render={({ node, nodeState }) => {
+                if (nodeState.isBranch) {
+                  return (
+                    <TreeView.BranchControl
+                      cursor="pointer"
+                      _hover={{ bg: 'bg.subtle' }}
+                      borderRadius="md"
+                      px="2"
+                      py="1"
+                    >
+                      <LuChevronRight
+                        size={13}
+                        style={{
+                          flexShrink: 0,
+                          opacity: 0.5,
+                          transform: nodeState.expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.15s',
+                        }}
+                      />
+                      <TreeView.BranchText
+                        fontSize="sm"
+                        fontWeight="500"
+                        truncate
+                      >
+                        {node.slug ? (
+                          <Link
+                            to="/$"
+                            params={{ _splat: node.slug }}
+                            onClick={(e) => { e.stopPropagation(); onNavigate?.() }}
+                            style={{ flex: 1, minWidth: 0 }}
+                          >
+                            <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm', fontWeight: '600' }}>
+                              {node.name}
+                            </Highlight>
+                          </Link>
+                        ) : (
+                          <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm', fontWeight: '600' }}>
+                            {node.name}
+                          </Highlight>
+                        )}
+                      </TreeView.BranchText>
+                    </TreeView.BranchControl>
+                  )
+                }
+
+                const isActive = currentSlug === node.slug
+                return (
+                  <TreeView.Item asChild>
+                    <Link
+                      to="/$"
+                      params={{ _splat: node.slug ?? node.id }}
+                      onClick={() => onNavigate?.()}
+                    >
+                      {leafIcon}
+                      <TreeView.ItemText
+                        fontSize="sm"
+                        fontWeight={isActive ? '500' : '400'}
+                        color={isActive ? 'fg' : 'fg.muted'}
+                        truncate
+                      >
+                        <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm', fontWeight: '600' }}>
+                          {node.name}
+                        </Highlight>
+                      </TreeView.ItemText>
+                    </Link>
+                  </TreeView.Item>
+                )
+              }}
+            />
+          </TreeView.Tree>
+        </TreeView.Root>
+      </Box>
+    </>
   )
 }
 
-// ── Shared nav tree ────────────────────────────────────────────────────────────
+// ── Shared nav tree ─────────────────────────────────────────────────────────
 
 export function SidebarContent({
   currentSlug,
@@ -132,41 +244,20 @@ export function SidebarContent({
   currentSlug: string
   onNavigate?: () => void
 }) {
-  const [query, setQuery] = useState('')
-
   return (
-    <>
-      {/* Search */}
-      <Box px="3" pb="2" flexShrink={0}>
-        <SearchBox value={query} onChange={setQuery} />
-      </Box>
-
-      {/* Results or nav tree */}
-      {query ? (
-        <Box flex="1" overflowY="auto" css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-          <SearchResults query={query} currentSlug={currentSlug} onNavigate={() => { setQuery(''); onNavigate?.() }} />
-        </Box>
-      ) : (
-        <>
-          <Box px="4" pb="1" flexShrink={0}>
-            <Text fontSize="xs" fontWeight="600" color="fg.muted" letterSpacing="0.06em" textTransform="uppercase">
-              Explorer
-            </Text>
-          </Box>
-          <Box flex="1" overflowY="auto" px="2" pb="6" css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-            <Box as="ul" listStyleType="none" p="0" m="0" mt="1">
-              {cookbookNav.sections.map((section) => (
-                <SectionItem key={section.slug} section={section} currentSlug={currentSlug} onNavigate={onNavigate} />
-              ))}
-            </Box>
-          </Box>
-        </>
-      )}
-    </>
+    <Box
+      flex="1"
+      overflowY="auto"
+      px="3"
+      pb="6"
+      css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
+    >
+      <NavTree currentSlug={currentSlug} onNavigate={onNavigate} />
+    </Box>
   )
 }
 
-// ── Desktop sidebar wrapper ────────────────────────────────────────────────────
+// ── Desktop sidebar wrapper ─────────────────────────────────────────────────
 
 export function Sidebar() {
   const routerState = useRouterState()
@@ -174,7 +265,6 @@ export function Sidebar() {
 
   return (
     <Flex direction="column" h="100vh" overflow="hidden">
-      {/* Site title */}
       <Flex px="4" pt="6" pb="3" flexShrink={0} align="flex-start" justify="space-between" gap="2">
         <Link to="/">
           <Text fontWeight="700" fontSize="lg" letterSpacing="-0.02em" lineHeight="1.2">
@@ -184,138 +274,20 @@ export function Sidebar() {
         </Link>
 
         <Flex align="center" gap="0.5" flexShrink={0} mt="0.5">
-          <a
+          <ChakraLink
             href="https://github.com/satwikShresth/cookbook"
             target="_blank"
             rel="noreferrer"
-            style={{ display: 'flex', alignItems: 'center', padding: '4px', borderRadius: '6px', color: 'inherit', opacity: 0.6, transition: 'opacity 0.15s' }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.6')}
           >
-            <LuGithub size={15} />
-          </a>
+            <IconButton size="xs" variant="ghost">
+              <LuGithub />
+            </IconButton>
+          </ChakraLink>
           <ColorModeButton size="xs" variant="ghost" />
         </Flex>
       </Flex>
 
       <SidebarContent currentSlug={currentSlug} />
     </Flex>
-  )
-}
-
-// ── Section + nav items ────────────────────────────────────────────────────────
-
-function SectionItem({
-  section,
-  currentSlug,
-  onNavigate,
-}: {
-  section: (typeof cookbookNav.sections)[number]
-  currentSlug: string
-  onNavigate?: () => void
-}) {
-  const hasChildren = section.files.length > 0
-  const isCurrentSection =
-    currentSlug === section.indexSlug || section.files.some((f) => f.slug === currentSlug)
-  const [open, setOpen] = useState(isCurrentSection || hasChildren)
-
-  const headerLabel = (
-    <Text as="span" fontSize="sm" fontWeight="500">
-      {section.name}
-    </Text>
-  )
-
-  if (!hasChildren) {
-    return (
-      <Box as="li" mb="0.5">
-        <NavLink slug={section.indexSlug ?? ''} label={section.name} currentSlug={currentSlug} onNavigate={onNavigate} />
-      </Box>
-    )
-  }
-
-  return (
-    <Box as="li" mb="1">
-      <Flex
-        align="center"
-        gap="1"
-        px="2"
-        py="1"
-        cursor="pointer"
-        onClick={() => setOpen((o) => !o)}
-        role="button"
-        borderRadius="md"
-        _hover={{ bg: 'bg.subtle' }}
-        transition="background 0.1s"
-      >
-        <LuChevronDown
-          size={12}
-          style={{ flexShrink: 0, color: 'var(--chakra-colors-fg-muted)', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s' }}
-        />
-        {section.indexSlug ? (
-          <Link
-            to="/$"
-            params={{ _splat: section.indexSlug }}
-            onClick={(e) => { e.stopPropagation(); onNavigate?.() }}
-            style={{ flex: 1, minWidth: 0 }}
-          >
-            {headerLabel}
-          </Link>
-        ) : (
-          <Box flex="1">{headerLabel}</Box>
-        )}
-      </Flex>
-
-      {open && (
-        <Box
-          as="ul"
-          listStyleType="none"
-          p="0"
-          m="0"
-          ml="3.5"
-          borderLeftWidth="1px"
-          borderColor="border"
-          pl="2"
-        >
-          {section.files.map((file) => (
-            <Box as="li" key={file.slug} mb="0.5">
-              <NavLink slug={file.slug} label={file.name} currentSlug={currentSlug} onNavigate={onNavigate} />
-            </Box>
-          ))}
-        </Box>
-      )}
-    </Box>
-  )
-}
-
-function NavLink({
-  slug,
-  label,
-  currentSlug,
-  onNavigate,
-}: {
-  slug: string
-  label: string
-  currentSlug: string
-  onNavigate?: () => void
-}) {
-  const isActive = currentSlug === slug
-  return (
-    <Link to="/$" params={{ _splat: slug }} onClick={() => onNavigate?.()}>
-      <Box
-        px="2"
-        py="1"
-        borderRadius="md"
-        fontSize="sm"
-        fontWeight={isActive ? '500' : '400'}
-        color={isActive ? 'fg' : 'fg.muted'}
-        bg={isActive ? 'bg.subtle' : 'transparent'}
-        _hover={{ bg: 'bg.subtle', color: 'fg' }}
-        transition="all 0.1s"
-        display="block"
-        truncate
-      >
-        {label}
-      </Box>
-    </Link>
   )
 }

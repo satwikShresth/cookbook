@@ -4,10 +4,27 @@ import { regex } from 'arkregex'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkBreaks from 'remark-breaks'
+import remarkEmoji from 'remark-emoji'
+import remarkGemoji from 'remark-gemoji'
+import remarkToc from 'remark-toc'
+import remarkNormalizeHeadings from 'remark-normalize-headings'
+import remarkSqueezeparagraphs from 'remark-squeeze-paragraphs'
+import remarkFlexibleContainers from 'remark-flexible-containers'
+import remarkFlexibleCodeTitles from 'remark-flexible-code-titles'
+import remarkDefinitionList from 'remark-definition-list'
+// @ts-expect-error — no type declarations for remark-heading-id
+import remarkHeadingId from 'remark-heading-id'
+import remarkGithubBlockquoteAlert from 'remark-github-blockquote-alert'
+import remarkSmartypants from 'remark-smartypants'
+import remarkIns from 'remark-ins'
+import remarkMath from 'remark-math'
 import remarkRehype from 'remark-rehype'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeKatex from 'rehype-katex'
 import rehypeStringify from 'rehype-stringify'
 import { visit } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
@@ -234,11 +251,45 @@ const cookbook = defineCollection({
 
       const result = await unified()
         .use(remarkParse)
+        // Frontmatter: parse YAML/TOML front matter blocks
+        .use(remarkFrontmatter, ['yaml', 'toml'])
+        // GFM: tables, strikethrough, task lists, autolinks, footnotes
         .use(remarkGfm)
+        // Normalize headings so there's at most one h1
+        .use(remarkNormalizeHeadings)
+        // Custom heading IDs: ## My Heading {#custom-id}
+        .use(remarkHeadingId)
+        // GitHub-style blockquote alerts: > [!NOTE], > [!TIP], > [!WARNING], etc.
+        .use(remarkGithubBlockquoteAlert)
+        // Flexible admonition containers: ::: tip / ::: warning / etc.
+        .use(remarkFlexibleContainers)
+        // Code block titles: ```js title="example.js"
+        .use(remarkFlexibleCodeTitles)
+        // Definition lists: term\n: definition
+        .use(remarkDefinitionList)
+        // Math: $inline$ and $$block$$
+        .use(remarkMath)
+        // Smart quotes, em-dashes, ellipses
+        .use(remarkSmartypants)
+        // Emoji shortcodes: :smile: → 😄
+        .use(remarkEmoji)
+        // Better Gemoji shortcode support
+        .use(remarkGemoji)
+        // ++inserted text++ → <ins>
+        .use(remarkIns)
+        // Hard line breaks without trailing spaces (like GitHub issues)
+        .use(remarkBreaks)
+        // Auto-generate a Table of Contents from a ## Contents heading
+        .use(remarkToc, { heading: 'contents|table of contents|toc', tight: true })
+        // Remove empty paragraphs left by other transforms
+        .use(remarkSqueezeparagraphs)
+        // Wikilinks: [[Page]] → <span data-wikilink>
         .use(remarkWikilinks(resolveSlug))
         .use(remarkRehype, { allowDangerousHtml: true })
         .use(rehypeRaw)
         .use(rehypeSlug)
+        // KaTeX: render math nodes to HTML
+        .use(rehypeKatex)
         .use(() => (tree) => {
           visit(tree, 'element', (node: Element) => {
             if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName)) {

@@ -1,5 +1,6 @@
 import { createFileRoute, notFound, Link } from '@tanstack/react-router'
 import { Box, Flex, Text, Separator } from '@chakra-ui/react'
+import { BreadcrumbRoot, BreadcrumbLink, BreadcrumbCurrentLink } from '#/components/ui/breadcrumb'
 import { getCookbookFileBySlug, cookbookNav } from '#/utils/cookbook-api'
 import { Markdown } from '#/components/Markdown'
 import { TableOfContents } from '#/components/TableOfContents'
@@ -22,51 +23,24 @@ export const Route = createFileRoute('/$')({
 function SlugBreadcrumb({ slug }: { slug: string }) {
   const parts = slug.split('/')
   return (
-    <nav aria-label="breadcrumbs">
-      <Box
-        as="ol"
-        display="flex"
-        flexWrap="wrap"
-        alignItems="center"
-        listStyleType="none"
-        p="0"
-        m="0"
-        fontSize="sm"
-        color="fg.muted"
-      >
-        {parts.map((part, i) => {
-          const isLast = i === parts.length - 1
-          const label = part.replace(/-/g, ' ')
-          const partSlug = parts.slice(0, i + 1).join('/')
-          return (
-            <Box as="li" key={partSlug} display="flex" alignItems="center">
-              {isLast ? (
-                <Text as="span" color="fg" fontWeight="500" fontSize="sm">{label}</Text>
-              ) : (
-                <>
-                  <Link to="/$" params={{ _splat: partSlug }}>
-                    <Text
-                      as="span"
-                      fontSize="sm"
-                      color="fg.muted"
-                      _hover={{ color: 'fg' }}
-                      transition="color 0.15s"
-                    >
-                      {label}
-                    </Text>
-                  </Link>
-                  <Text as="span" mx="1.5" color="fg.subtle" userSelect="none">❯</Text>
-                </>
-              )}
-            </Box>
-          )
-        })}
-      </Box>
-    </nav>
+    <BreadcrumbRoot size="lg">
+      {parts.map((part, i) => {
+        const isLast = i === parts.length - 1
+        const label = part.replace(/-/g, ' ')
+        const partSlug = parts.slice(0, i + 1).join('/')
+        return isLast ? (
+          <BreadcrumbCurrentLink key={partSlug} fontWeight="500">{label}</BreadcrumbCurrentLink>
+        ) : (
+          <BreadcrumbLink key={partSlug} asChild>
+            <Link to="/$" params={{ _splat: partSlug }}>{label}</Link>
+          </BreadcrumbLink>
+        )
+      })}
+    </BreadcrumbRoot>
   )
 }
 
-function RightSidebar({ slug, headings }: { slug: string; headings: ReturnType<typeof getCookbookFileBySlug>['headings'] }) {
+function RightSidebar({ slug, headings }: { slug: string; headings: NonNullable<ReturnType<typeof getCookbookFileBySlug>>['headings'] }) {
   return (
     <Flex direction="column" gap="5">
       <Graph slug={slug} nav={cookbookNav} />

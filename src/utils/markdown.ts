@@ -1,1 +1,1 @@
-export type { MarkdownHeading } from '../../content-collections'
+export type { MarkdownHeading } from "../../content-collections";

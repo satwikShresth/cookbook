@@ -15,7 +15,6 @@
     "biome",
     "tanstack-query",
     "store",
-    "shadcn",
     "compiler"
   ]
 }

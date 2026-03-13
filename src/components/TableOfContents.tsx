@@ -1,9 +1,37 @@
 import { useEffect, useRef, useState } from 'react'
-import { Box, Text } from '@chakra-ui/react'
+import { Box, Text, TreeView, createTreeCollection } from '@chakra-ui/react'
 import type { MarkdownHeading } from '#/utils/markdown'
 
 type Props = {
   headings: MarkdownHeading[]
+}
+
+type HeadingNode = {
+  id: string
+  text: string
+  level: number
+  children?: HeadingNode[]
+}
+
+function buildTree(headings: MarkdownHeading[]): HeadingNode[] {
+  const roots: HeadingNode[] = []
+  let currentH2: HeadingNode | null = null
+
+  for (const h of headings) {
+    if (h.level === 2) {
+      currentH2 = { ...h, children: [] }
+      roots.push(currentH2)
+    } else if (h.level === 3 && currentH2) {
+      currentH2.children!.push({ ...h })
+    }
+  }
+
+  // strip empty children arrays so nodeState.isBranch works correctly
+  for (const node of roots) {
+    if (node.children?.length === 0) delete node.children
+  }
+
+  return roots
 }
 
 export function TableOfContents({ headings }: Props) {
@@ -39,40 +67,60 @@ export function TableOfContents({ headings }: Props) {
 
   if (!filtered.length) return null
 
+  const tree = buildTree(filtered)
+  const expandedIds = tree.filter((n) => n.children).map((n) => n.id)
+
+  const collection = createTreeCollection<HeadingNode>({
+    nodeToValue: (node) => node.id,
+    nodeToString: (node) => node.text,
+    rootNode: { id: '__root__', text: '', level: 0, children: tree },
+  })
+
   return (
     <Box>
-      <Text fontSize="sm" fontWeight="600" mb="2">
-        Table of Contents
+      <Text fontSize="sm" fontWeight="600" mb="1">
+        On this page
       </Text>
-      <Box as="ul" listStyleType="none" p="0" m="0" display="flex" flexDirection="column" gap="0">
-        {filtered.map((h) => (
-          <Box
-            as="li"
-            key={h.id}
-            pl={h.level === 3 ? '3' : '0'}
-          >
-            <Box
-              as="a"
-              href={`#${h.id}`}
-              display="block"
-              py="0.5"
-              fontSize="sm"
-              lineHeight="1.4"
-              color={activeId === h.id ? 'fg' : 'fg.muted'}
-              fontWeight={activeId === h.id ? '500' : '400'}
-              borderLeftWidth={activeId === h.id ? '2px' : '2px'}
-              borderLeftColor={activeId === h.id ? 'colorPalette.solid' : 'transparent'}
-              pl="2"
-              ml="-2"
-              textDecoration="none"
-              transition="color 0.15s, border-color 0.15s"
-              _hover={{ color: 'fg' }}
-            >
-              {h.text}
-            </Box>
-          </Box>
-        ))}
-      </Box>
+      <TreeView.Root
+        collection={collection}
+        defaultExpandedValue={expandedIds}
+        size="sm"
+        animateContent
+      >
+        <TreeView.Tree>
+          <TreeView.Node
+            indentGuide={<TreeView.BranchIndentGuide />}
+            render={({ node, nodeState }) =>
+              nodeState.isBranch ? (
+                <TreeView.BranchControl>
+                  <TreeView.BranchText
+                    asChild
+                    fontWeight={activeId === node.id ? '600' : '400'}
+                    color={activeId === node.id ? 'fg' : 'fg.muted'}
+                    _hover={{ color: 'fg' }}
+                    transition="color 0.15s"
+                  >
+                    <a href={`#${node.id}`}>{node.text}</a>
+                  </TreeView.BranchText>
+                </TreeView.BranchControl>
+              ) : (
+                <TreeView.Item asChild value={node.id}>
+                  <a href={`#${node.id}`}>
+                    <TreeView.ItemText
+                      fontWeight={activeId === node.id ? '500' : '400'}
+                      color={activeId === node.id ? 'fg' : 'fg.muted'}
+                      _hover={{ color: 'fg' }}
+                      transition="color 0.15s"
+                    >
+                      {node.text}
+                    </TreeView.ItemText>
+                  </a>
+                </TreeView.Item>
+              )
+            }
+          />
+        </TreeView.Tree>
+      </TreeView.Root>
     </Box>
   )
 }
