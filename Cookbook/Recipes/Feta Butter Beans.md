@@ -69,4 +69,4 @@ chef: "[[Chefs|Janis]]"
 - The beans are mild on their own, but the feta carries the whole dish.
 - Also tastes great made with chickpeas.
 
-![[unknown.jpg]]
+![image](https://s3.satwik.dev/public/obs-cookbook/2026-03/e1447dbc314bce6b56b71759375a057a.jpg)

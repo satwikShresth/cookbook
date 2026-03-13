@@ -1,0 +1,10 @@
+{
+  "image-upload-toolkit:publish-page": [
+    {
+      "modifiers": [
+        "Ctrl"
+      ],
+      "key": "U"
+    }
+  ]
+}

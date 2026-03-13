@@ -13,12 +13,12 @@
             "state": {
               "type": "split-diff-view",
               "state": {
-                "aFile": "Cookbook/Recipes/Feta Butter Beans.md",
-                "bFile": "Cookbook/Recipes/Feta Butter Beans.md",
+                "aFile": "Cookbook/.obsidian/community-plugins.json",
+                "bFile": "Cookbook/.obsidian/community-plugins.json",
                 "aRef": ""
               },
               "icon": "diff",
-              "title": "Diff: Feta Butter Beans  (Working Tree)"
+              "title": "Diff: community-plugins.json  (Working Tree)"
             }
           }
         ]
@@ -188,7 +188,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 747.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -199,33 +199,34 @@
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "bases:Create new base": false,
-      "obsidian-git:Open Git source control": false
+      "obsidian-git:Open Git source control": false,
+      "custom-image-auto-uploader:Custom Image Auto Uploader": false
     }
   },
   "active": "7a20e4fa5a2d12ae",
   "lastOpenFiles": [
-    "unknown.jpg",
     "Recipes/Feta Butter Beans.md",
-    "Recipes/Overnight Oats Formula.md",
+    "Recipes/Quick Edamame and Dumplings.md",
     "Recipes/Miso Soup Freezer Balls.md",
     "Recipes/Mayak Eggs.md",
+    "Recipes/Cabbage Thoran.md",
+    "Recipes/Cheatcode Korean Chicken.md",
+    "Recipes/Index.md",
+    "Recipes/Overnight Oats Formula.md",
+    "Chefs.md",
+    "Honorable Mentions and Ideas.md",
+    "Index.md",
+    "unknown.jpg",
     "Techniques/Batch Freezer Prep.md",
     "Techniques/Tempering Seeds in Oil.md",
-    "Index.md",
     "Techniques/Blooming Spices.md",
-    "Recipes/Index.md",
     "Techniques/Index.md",
     "Techniques/Pressing and Grating Tofu.md",
     "Techniques/Soft-Boiling Eggs.md",
     "Techniques/Garlic and Ginger Paste Base.md",
     "Untitled 1.base",
     "Untitled.base",
-    "Honorable Mentions and Ideas.md",
-    "Chefs.md",
     "Recipes/Baked Tofu and Crispy Rice Salad.md",
-    "Recipes/Quick Edamame and Dumplings.md",
-    "Recipes/Cheatcode Korean Chicken.md",
-    "Recipes/Cabbage Thoran.md",
     "Chefs/Janis.md",
     "Chefs/Satwik.md",
     "Chefs/Sid.md",
