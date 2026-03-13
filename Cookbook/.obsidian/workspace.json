@@ -11,15 +11,14 @@
             "id": "7a20e4fa5a2d12ae",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "Index.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": false
+                "aFile": "Cookbook/.obsidian/workspace.json",
+                "bFile": "Cookbook/.obsidian/workspace.json",
+                "aRef": ""
               },
-              "icon": "lucide-file",
-              "title": "Index"
+              "icon": "diff",
+              "title": "Diff: workspace.json  (Working Tree)"
             }
           }
         ]
@@ -95,7 +94,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Welcome.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +103,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Welcome"
+              "title": "Backlinks"
             }
           },
           {
@@ -114,12 +112,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Welcome.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Welcome"
+              "title": "Outgoing links"
             }
           },
           {
@@ -175,6 +172,16 @@
               "icon": "git-pull-request",
               "title": "Source Control"
             }
+          },
+          {
+            "id": "47de45a4e0df73f6",
+            "type": "leaf",
+            "state": {
+              "type": "file-properties",
+              "state": {},
+              "icon": "lucide-info",
+              "title": "File properties"
+            }
           }
         ],
         "currentTab": 5
@@ -197,29 +204,31 @@
   },
   "active": "7a20e4fa5a2d12ae",
   "lastOpenFiles": [
-    "Recipes/Baked Tofu and Crispy Rice Salad.md",
+    "Techniques/Garlic and Ginger Paste Base.md",
+    "Techniques/Pressing and Grating Tofu.md",
+    "Techniques/Blooming Spices.md",
+    "Untitled 1.base",
+    "Untitled.base",
+    "Index.md",
+    "Techniques/Batch Freezer Prep.md",
+    "Honorable Mentions and Ideas.md",
     "Chefs.md",
-    "Recipes/Cabbage Thoran.md",
+    "Recipes/Baked Tofu and Crispy Rice Salad.md",
+    "Techniques/Soft-Boiling Eggs.md",
+    "Recipes/Quick Edamame and Dumplings.md",
+    "Recipes/Overnight Oats Formula.md",
+    "Recipes/Miso Soup Freezer Balls.md",
+    "Recipes/Mayak Eggs.md",
+    "Recipes/Feta Butter Beans.md",
     "Recipes/Cheatcode Korean Chicken.md",
+    "Recipes/Cabbage Thoran.md",
     "Chefs/Janis.md",
     "Chefs/Satwik.md",
     "Chefs/Sid.md",
     "Chefs/Sunny Bhaiya.md",
     "Chefs/Yankele.md",
-    "Honorable Mentions and Ideas.md",
     "Chefs",
     "Techniques/Tempering Seeds in Oil.md",
-    "Techniques/Soft-Boiling Eggs.md",
-    "Techniques/Garlic and Ginger Paste Base.md",
-    "Techniques/Blooming Spices.md",
-    "Techniques/Batch Freezer Prep.md",
-    "Recipes/Quick Edamame and Dumplings.md",
-    "Recipes/Feta Butter Beans.md",
-    "Recipes/Mayak Eggs.md",
-    "Recipes/Miso Soup Freezer Balls.md",
-    "Recipes/Overnight Oats Formula.md",
-    "Index.md",
-    "Techniques/Pressing and Grating Tofu.md",
     "Techniques",
     "Welcome.md",
     "Recipes",
