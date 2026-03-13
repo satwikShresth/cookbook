@@ -1,36 +1,41 @@
-import { useState } from 'react'
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Box, Flex } from '@chakra-ui/react'
-import { FontSizeProvider } from '#/utils'
-import { Sidebar } from '#/components/Sidebar'
-import { MobileTopBar } from '#/components/MobileTopBar'
-import { MobileDrawer } from '#/components/MobileDrawer'
+import { useState } from "react";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { Box, Flex } from "@chakra-ui/react";
+import { FontSizeProvider } from "#/utils";
+import { Sidebar } from "#/components/Sidebar";
+import { MobileTopBar } from "#/components/MobileTopBar";
+import { MobileDrawer } from "#/components/MobileDrawer";
 
 export const Route = createRootRoute({
-  component: RootLayout,
-})
+	component: RootLayout,
+});
 
 function RootLayout() {
-  const [drawerOpen, setDrawerOpen] = useState(false)
+	const [drawerOpen, setDrawerOpen] = useState(false);
 
-  return (
-    <FontSizeProvider>
-      <Flex w="100%" minH="100vh" direction="column">
-        <MobileTopBar onOpen={() => setDrawerOpen(true)} />
-        <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+	return (
+		<FontSizeProvider>
+			<Flex w="100%" minH="100vh" direction="column">
+				<MobileTopBar onOpen={() => setDrawerOpen(true)} />
+				<MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
-        <Flex flex="1" align="flex-start">
-          <Box flex="1" minW={0} display="flex" justifyContent="center">
-            <Sidebar />
-            <Box w="100%" maxW="900px" py={{ base: '6', md: '12' }} px={{ base: '4', md: '10' }}>
-              <Outlet />
-            </Box>
-          </Box>
-        </Flex>
+				<Flex flex="1" align="flex-start">
+					<Box flex="1" minW={0} display="flex" justifyContent="center">
+						<Sidebar />
+						<Box
+							w="100%"
+							maxW="900px"
+							py={{ base: "6", md: "12" }}
+							px={{ base: "4", md: "10" }}
+						>
+							<Outlet />
+						</Box>
+					</Box>
+				</Flex>
 
-        <TanStackRouterDevtools position="bottom-right" />
-      </Flex>
-    </FontSizeProvider>
-  )
+				<TanStackRouterDevtools position="bottom-right" />
+			</Flex>
+		</FontSizeProvider>
+	);
 }
