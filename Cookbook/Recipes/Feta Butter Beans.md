@@ -46,6 +46,7 @@ chef: "[[Chefs|Janis]]"
 
 ---
 
+
 ## Method
 
 1. Chop onion. Blend tomato into a juice and set aside.
@@ -68,3 +69,5 @@ chef: "[[Chefs|Janis]]"
 - Using roasted red peppers (as the original recipe suggests) would be simpler — just paprika, onion, and peppers.
 - The beans are mild on their own, but the feta carries the whole dish.
 - Also tastes great made with chickpeas.
+
+![[unknown.jpg]]
