@@ -61,6 +61,16 @@ export function Markdown({ html }: MarkdownProps) {
           />
         )
       }
+
+      if (domNode.name === 'table') {
+        return (
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '1.25rem 0' }}>
+            <table style={{ margin: 0 }}>
+              {domToReact(domNode.children as DOMNode[], options)}
+            </table>
+          </div>
+        )
+      }
     },
   }
 
@@ -73,9 +83,12 @@ export function Markdown({ html }: MarkdownProps) {
         '& h2': { fontSize: '1.4rem', fontWeight: 600, marginTop: '1.9rem', marginBottom: '1rem', letterSpacing: '-0.01em' },
         '& h3': { fontSize: '1.12rem', fontWeight: 600, marginTop: '1.62rem', marginBottom: '1rem' },
         '& h4, & h5, & h6': { fontSize: '1rem', fontWeight: 600, marginTop: '1.5rem', marginBottom: '1rem' },
+        '& h2[id], & h3[id], & h4[id]': { position: 'relative' },
         '& h2[id] > a.anchor, & h3[id] > a.anchor, & h4[id] > a.anchor': {
+          position: 'absolute', left: '-1.2em',
           opacity: 0, transition: 'opacity 0.2s ease', fontFamily: 'ui-monospace, monospace',
-          fontSize: '0.75em', marginRight: '0.4rem', textDecoration: 'none', userSelect: 'none',
+          fontSize: '0.8em', textDecoration: 'none', userSelect: 'none', fontWeight: 400,
+          color: 'var(--chakra-colors-fg-muted)',
         },
         '& h2[id]:hover > a.anchor, & h3[id]:hover > a.anchor, & h4[id]:hover > a.anchor': { opacity: 1 },
         '& a': { fontWeight: 600, transition: 'color 0.2s ease' },
@@ -92,10 +105,11 @@ export function Markdown({ html }: MarkdownProps) {
         '& ol': { paddingLeft: '1.5rem', listStyleType: 'decimal' },
         '& li': { listStyleType: 'inherit' },
         '& li:has(> input[type="checkbox"])': { listStyleType: 'none', paddingLeft: 0 },
-        '& table': { width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem', margin: '1rem 0' },
-        '& th': { textAlign: 'left', borderBottomWidth: '2px', padding: '0.4rem 0.7rem', fontWeight: 600 },
-        '& td': { padding: '0.3rem 0.7rem', borderBottomWidth: '1px', lineHeight: '2rem' },
+        '& table': { width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', margin: '1.25rem 0' },
+        '& th': { textAlign: 'left', borderBottomWidth: '2px', padding: '0.5rem 0.75rem', fontWeight: 600, whiteSpace: 'nowrap', color: 'fg.muted', fontSize: '0.8rem', letterSpacing: '0.02em' },
+        '& td': { padding: '0.45rem 0.75rem', borderBottomWidth: '1px', lineHeight: '1.5', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' },
         '& tr:last-child td': { borderBottom: 'none' },
+        '& tbody tr:hover td': { background: 'var(--chakra-colors-bg-subtle)' },
       }}
     >
       {parse(html, options)}

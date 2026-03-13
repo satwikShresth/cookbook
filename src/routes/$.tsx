@@ -28,7 +28,6 @@ function SlugBreadcrumb({ slug }: { slug: string }) {
         display="flex"
         flexWrap="wrap"
         alignItems="center"
-        gap="0"
         listStyleType="none"
         p="0"
         m="0"
@@ -67,19 +66,30 @@ function SlugBreadcrumb({ slug }: { slug: string }) {
   )
 }
 
+function RightSidebar({ slug, headings }: { slug: string; headings: ReturnType<typeof getCookbookFileBySlug>['headings'] }) {
+  return (
+    <Flex direction="column" gap="5">
+      <Graph slug={slug} nav={cookbookNav} />
+      <Separator />
+      <TableOfContents headings={headings} />
+      <Separator />
+      <Backlinks slug={slug} nav={cookbookNav} />
+    </Flex>
+  )
+}
+
 function FilePage() {
   const { fileContent, slug } = Route.useLoaderData()
 
   return (
-    <Flex gap="16" align="flex-start">
+    <Flex gap="16" align="flex-start" direction={{ base: 'column', lg: 'row' }}>
       {/* Article */}
-      <Box as="article" minW={0} flex="1">
-        {/* Page header */}
+      <Box as="article" minW={0} flex="1" w="100%">
         <Box mb="8">
           <SlugBreadcrumb slug={slug} />
           <Text
             as="h1"
-            fontSize="3xl"
+            fontSize={{ base: '2xl', md: '3xl' }}
             fontWeight="700"
             letterSpacing="-0.03em"
             lineHeight="1.15"
@@ -91,11 +101,23 @@ function FilePage() {
         </Box>
 
         <Markdown html={fileContent.html} />
+
+        {/* Right sidebar content — shown below article on mobile */}
+        <Box
+          display={{ base: 'block', lg: 'none' }}
+          mt="10"
+          pt="6"
+          borderTopWidth="1px"
+          borderColor="border"
+        >
+          <RightSidebar slug={slug} headings={fileContent.headings} />
+        </Box>
       </Box>
 
-      {/* Right sidebar */}
+      {/* Right sidebar — desktop only, sticky */}
       <Box
         as="aside"
+        display={{ base: 'none', lg: 'block' }}
         w="220px"
         flexShrink={0}
         position="sticky"
@@ -108,13 +130,7 @@ function FilePage() {
           '&::-webkit-scrollbar': { display: 'none' },
         }}
       >
-        <Flex direction="column" gap="5">
-          <Graph slug={slug} nav={cookbookNav} />
-          <Separator />
-          <TableOfContents headings={fileContent.headings} />
-          <Separator />
-          <Backlinks slug={slug} nav={cookbookNav} />
-        </Flex>
+        <RightSidebar slug={slug} headings={fileContent.headings} />
       </Box>
     </Flex>
   )
