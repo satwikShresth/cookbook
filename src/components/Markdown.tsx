@@ -53,6 +53,30 @@ export function Markdown({ html }: MarkdownProps) {
         )
       }
 
+      if (domNode.name === 'a' && domNode.attribs.href && !domNode.attribs['data-wikilink']) {
+        const href = domNode.attribs.href
+        const isAnchor = href.startsWith('#')
+        const isExternal = href.startsWith('http://') || href.startsWith('https://')
+        if (isAnchor) return
+        return (
+          <Box
+            as="a"
+            href={href}
+            {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            color="teal.500"
+            fontWeight="500"
+            textDecoration="underline"
+            textDecorationColor="teal.muted"
+            textUnderlineOffset="3px"
+            transition="all 0.15s ease"
+            _hover={{ color: 'teal.400', textDecorationColor: 'teal.emphasized' }}
+            display="inline"
+          >
+            {domToReact(domNode.children as DOMNode[], options)}
+          </Box>
+        )
+      }
+
       if (domNode.name === 'img') {
         return (
           <img
@@ -92,7 +116,7 @@ export function Markdown({ html }: MarkdownProps) {
           color: 'var(--chakra-colors-fg-muted)',
         },
         '& h2[id]:hover > a.anchor, & h3[id]:hover > a.anchor, & h4[id]:hover > a.anchor': { opacity: 1 },
-        '& a': { fontWeight: 600, transition: 'color 0.2s ease' },
+        '& a': { transition: 'color 0.2s ease' },
         '& strong': { fontWeight: 600 },
         '& code': { fontSize: '0.82em', borderRadius: '3px', padding: '2px 5px', fontFamily: "ui-monospace, 'SF Mono', 'Fira Code', monospace" },
         '& pre': { borderRadius: '6px', padding: '1.1rem 1.25rem', overflowX: 'auto', fontSize: '0.82rem', lineHeight: 1.65, borderWidth: '1px' },
