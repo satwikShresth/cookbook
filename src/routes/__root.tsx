@@ -22,7 +22,9 @@ function RootLayout() {
 
 				<Flex flex="1" align="flex-start">
 					<Box flex="1" minW={0} display="flex" justifyContent="center">
-						<Sidebar />
+						<Box display={{ base: "none", md: "block" }}>
+							<Sidebar />
+						</Box>
 						<Box
 							w="100%"
 							maxW="900px"
