@@ -29,7 +29,10 @@ export function Graph({ slug, nav }: Props) {
     const container = containerRef.current
     if (!container) return
 
-    const allFiles = nav.sections.flatMap((s) => s.files)
+    const allFiles = nav.sections.flatMap((s) => [
+      ...(s.indexSlug ? [{ slug: s.indexSlug, name: s.name }] : []),
+      ...s.files,
+    ])
 
     // Collect neighbour slugs (depth-1)
     const neighborSlugs = new Set<string>()
@@ -175,8 +178,8 @@ export function Graph({ slug, nav }: Props) {
 
   return (
     <Box>
-      <Text fontSize="xs" color="fg.muted" mb="2">
-        Graph
+      <Text fontSize="sm" fontWeight="600" mb="2">
+        Graph View
       </Text>
       <Box ref={containerRef} w="100%" />
     </Box>

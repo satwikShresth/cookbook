@@ -33,15 +33,9 @@ function buildNav(): CookbookNav {
   const edges: { source: string; target: string }[] = []
 
   for (const doc of allCookbooks) {
-    for (const rawLink of doc.rawLinks) {
-      const target = allCookbooks.find((d) => {
-        const lastName = d.slug.split('/').at(-1)
-        return lastName === rawLink.trim().replace(/\s/g, '-').toLowerCase()
-      })
-      if (target) {
-        ;(backlinks[target.slug] ??= []).push(doc.slug)
-        edges.push({ source: doc.slug, target: target.slug })
-      }
+    for (const targetSlug of doc.resolvedLinks) {
+      ;(backlinks[targetSlug] ??= []).push(doc.slug)
+      edges.push({ source: doc.slug, target: targetSlug })
     }
   }
 

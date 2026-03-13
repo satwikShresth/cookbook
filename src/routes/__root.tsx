@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { Box, Center, Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { Sidebar } from '#/components/Sidebar'
 
 export const Route = createRootRoute({
@@ -10,23 +10,26 @@ export const Route = createRootRoute({
 function RootLayout() {
   return (
     <Flex w="100%" minH="100vh">
-      <Center flex="1" minW={0} alignItems="flex-start" py="14" px="8">
+      {/* Left sidebar */}
       <Box
-        w="16rem"
+        w="260px"
         flexShrink={0}
-        borderRightWidth="1px"
-        borderColor="border"
-        h="100vh"
         position="sticky"
         top={0}
+        h="100vh"
+        alignSelf="flex-start"
+        borderRightWidth="1px"
+        borderColor="border"
       >
         <Sidebar />
       </Box>
 
-        <Box ml={10} w="100%" maxW="3xl">
+      {/* Main content — centered with max-width */}
+      <Box flex="1" minW={0} display="flex" justifyContent="center">
+        <Box w="100%" maxW="900px" py="12" px="10">
           <Outlet />
         </Box>
-      </Center>
+      </Box>
 
       <TanStackRouterDevtools position="bottom-right" />
     </Flex>

@@ -1,52 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, Text, TreeView, createTreeCollection } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 import type { MarkdownHeading } from '#/utils/markdown'
 
 type Props = {
   headings: MarkdownHeading[]
 }
 
-interface HeadingNode {
-  id: string
-  text: string
-  children?: HeadingNode[]
-}
-
-function buildCollection(headings: MarkdownHeading[]) {
-  const children: HeadingNode[] = []
-
-  for (const h of headings.filter((h) => h.level <= 3)) {
-    if (h.level === 2) {
-      children.push({ id: h.id, text: h.text, children: [] })
-    } else {
-      const parent = children.at(-1)
-      if (parent?.children) {
-        parent.children.push({ id: h.id, text: h.text })
-      } else {
-        children.push({ id: h.id, text: h.text })
-      }
-    }
-  }
-
-  return createTreeCollection<HeadingNode>({
-    nodeToValue: (n) => n.id,
-    nodeToString: (n) => n.text,
-    rootNode: {
-      id: 'ROOT',
-      text: '',
-      children: children.map((n) =>
-        n.children?.length === 0 ? { ...n, children: undefined } : n,
-      ),
-    },
-  })
-}
-
 export function TableOfContents({ headings }: Props) {
   const [activeId, setActiveId] = useState<string>('')
   const observerRef = useRef<IntersectionObserver | null>(null)
 
+  const filtered = headings.filter((h) => h.level <= 3)
+
   useEffect(() => {
-    if (!headings.length) return
+    if (!filtered.length) return
     observerRef.current?.disconnect()
 
     const observer = new IntersectionObserver(
@@ -61,7 +28,7 @@ export function TableOfContents({ headings }: Props) {
       { rootMargin: '0px 0px -80% 0px', threshold: 0 },
     )
 
-    for (const h of headings) {
+    for (const h of filtered) {
       const el = document.getElementById(h.id)
       if (el) observer.observe(el)
     }
@@ -70,48 +37,42 @@ export function TableOfContents({ headings }: Props) {
     return () => observer.disconnect()
   }, [headings])
 
-  if (!headings.filter((h) => h.level <= 3).length) return null
-
-  const collection = buildCollection(headings)
-  const expandedValue = collection.rootNode.children
-    ?.filter((n) => n.children?.length)
-    .map((n) => n.id) ?? []
+  if (!filtered.length) return null
 
   return (
-    <>
-      <Text fontSize="xs" color="fg.muted">
-        On this page
+    <Box>
+      <Text fontSize="sm" fontWeight="600" mb="2">
+        Table of Contents
       </Text>
-      <TreeView.Root
-        collection={collection}
-        defaultExpandedValue={expandedValue}
-        selectedValue={[activeId]}
-        size="sm"
-        variant="subtle"
-      >
-        <TreeView.Tree>
-          <TreeView.Node
-            render={({ node, nodeState }) =>
-              nodeState.isBranch ? (
-                <TreeView.BranchControl>
-                  <TreeView.BranchIndicator />
-                  <Link href={`#${node.id}`} textDecoration="none">
-                    {node.text}
-                  </Link>
-                </TreeView.BranchControl>
-              ) : (
-                <TreeView.Item>
-                  <TreeView.ItemText>
-                    <Link href={`#${node.id}`} textDecoration="none">
-                      {node.text}
-                    </Link>
-                  </TreeView.ItemText>
-                </TreeView.Item>
-              )
-            }
-          />
-        </TreeView.Tree>
-      </TreeView.Root>
-    </>
+      <Box as="ul" listStyleType="none" p="0" m="0" display="flex" flexDirection="column" gap="0">
+        {filtered.map((h) => (
+          <Box
+            as="li"
+            key={h.id}
+            pl={h.level === 3 ? '3' : '0'}
+          >
+            <Box
+              as="a"
+              href={`#${h.id}`}
+              display="block"
+              py="0.5"
+              fontSize="sm"
+              lineHeight="1.4"
+              color={activeId === h.id ? 'fg' : 'fg.muted'}
+              fontWeight={activeId === h.id ? '500' : '400'}
+              borderLeftWidth={activeId === h.id ? '2px' : '2px'}
+              borderLeftColor={activeId === h.id ? 'colorPalette.solid' : 'transparent'}
+              pl="2"
+              ml="-2"
+              textDecoration="none"
+              transition="color 0.15s, border-color 0.15s"
+              _hover={{ color: 'fg' }}
+            >
+              {h.text}
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
   )
 }

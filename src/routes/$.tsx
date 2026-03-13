@@ -1,5 +1,5 @@
 import { createFileRoute, notFound, Link } from '@tanstack/react-router'
-import { Box, Flex, Text, Breadcrumb, Separator } from '@chakra-ui/react'
+import { Box, Flex, Text, Separator } from '@chakra-ui/react'
 import { getCookbookFileBySlug, cookbookNav } from '#/utils/cookbook-api'
 import { Markdown } from '#/components/Markdown'
 import { TableOfContents } from '#/components/TableOfContents'
@@ -21,30 +21,49 @@ export const Route = createFileRoute('/$')({
 
 function SlugBreadcrumb({ slug }: { slug: string }) {
   const parts = slug.split('/')
-
   return (
-    <Breadcrumb.Root size="sm" mb="6">
-      <Breadcrumb.List>
+    <nav aria-label="breadcrumbs">
+      <Box
+        as="ol"
+        display="flex"
+        flexWrap="wrap"
+        alignItems="center"
+        gap="0"
+        listStyleType="none"
+        p="0"
+        m="0"
+        fontSize="sm"
+        color="fg.muted"
+      >
         {parts.map((part, i) => {
           const isLast = i === parts.length - 1
           const label = part.replace(/-/g, ' ')
           const partSlug = parts.slice(0, i + 1).join('/')
-
           return (
-            <Breadcrumb.Item key={partSlug}>
+            <Box as="li" key={partSlug} display="flex" alignItems="center">
               {isLast ? (
-                <Breadcrumb.CurrentLink>{label}</Breadcrumb.CurrentLink>
+                <Text as="span" color="fg" fontWeight="500" fontSize="sm">{label}</Text>
               ) : (
-                <Breadcrumb.Link asChild>
-                  <Link to="/$" params={{ _splat: partSlug }}>{label}</Link>
-                </Breadcrumb.Link>
+                <>
+                  <Link to="/$" params={{ _splat: partSlug }}>
+                    <Text
+                      as="span"
+                      fontSize="sm"
+                      color="fg.muted"
+                      _hover={{ color: 'fg' }}
+                      transition="color 0.15s"
+                    >
+                      {label}
+                    </Text>
+                  </Link>
+                  <Text as="span" mx="1.5" color="fg.subtle" userSelect="none">❯</Text>
+                </>
               )}
-              {!isLast && <Breadcrumb.Separator />}
-            </Breadcrumb.Item>
+            </Box>
           )
         })}
-      </Breadcrumb.List>
-    </Breadcrumb.Root>
+      </Box>
+    </nav>
   )
 }
 
@@ -52,28 +71,50 @@ function FilePage() {
   const { fileContent, slug } = Route.useLoaderData()
 
   return (
-    <Flex gap="10" align="flex-start">
+    <Flex gap="16" align="flex-start">
+      {/* Article */}
       <Box as="article" minW={0} flex="1">
-        <SlugBreadcrumb slug={slug} />
+        {/* Page header */}
+        <Box mb="8">
+          <SlugBreadcrumb slug={slug} />
+          <Text
+            as="h1"
+            fontSize="3xl"
+            fontWeight="700"
+            letterSpacing="-0.03em"
+            lineHeight="1.15"
+            mt="3"
+            mb="0"
+          >
+            {fileContent.name}
+          </Text>
+        </Box>
+
         <Markdown html={fileContent.html} />
       </Box>
 
+      {/* Right sidebar */}
       <Box
         as="aside"
-        w="180px"
+        w="220px"
         flexShrink={0}
         position="sticky"
-        top="14"
+        top="10"
         alignSelf="flex-start"
-        display="flex"
-        flexDirection="column"
-        gap="4"
+        maxH="calc(100vh - 5rem)"
+        overflowY="auto"
+        css={{
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
       >
-        <TableOfContents headings={fileContent.headings} />
-        <Separator />
-        <Graph slug={slug} nav={cookbookNav} />
-        <Separator />
-        <Backlinks slug={slug} nav={cookbookNav} />
+        <Flex direction="column" gap="5">
+          <Graph slug={slug} nav={cookbookNav} />
+          <Separator />
+          <TableOfContents headings={fileContent.headings} />
+          <Separator />
+          <Backlinks slug={slug} nav={cookbookNav} />
+        </Flex>
       </Box>
     </Flex>
   )

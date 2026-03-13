@@ -98,7 +98,7 @@ function deriveSectionName(filePath: string): string {
 
 // ── Wikilink extraction (for rawLinks / backlink graph) ───────────────────────
 
-const wikilinkExtractRegex = /!?\[\[([^\]|#\\]+)?(#+[^\]|#\\]+)?(\\\|[^\]#]*)?\]\]/g
+const wikilinkExtractRegex = /!?\[\[([^\]|#]+?)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]/g
 
 function extractWikilinks(content: string): string[] {
   const fps: string[] = []
@@ -261,12 +261,17 @@ const cookbook = defineCollection({
       return { html: String(result), headings: extractedHeadings }
     })
 
+    const resolvedLinks = rawLinks
+      .map((raw) => resolveSlug(raw))
+      .filter((s): s is string => s !== null)
+
     return {
       slug,
       section,
       isIndex,
       name,
       rawLinks,
+      resolvedLinks,
       html,
       headings,
     }
