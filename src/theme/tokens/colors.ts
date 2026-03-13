@@ -8,7 +8,7 @@ export const colors = defineTokens.colors({
     value: "currentColor",
   },
   black: {
-    value: "#09090B",
+    value: "#0D0D12",
   },
   white: {
     value: "#FFFFFF",
@@ -50,387 +50,397 @@ export const colors = defineTokens.colors({
   },
   blackAlpha: {
     "50": {
-      value: "rgba(0, 0, 0, 0.04)",
+      value: "rgba(13, 13, 18, 0.04)",
     },
     "100": {
-      value: "rgba(0, 0, 0, 0.06)",
+      value: "rgba(13, 13, 18, 0.06)",
     },
     "200": {
-      value: "rgba(0, 0, 0, 0.08)",
+      value: "rgba(13, 13, 18, 0.08)",
     },
     "300": {
-      value: "rgba(0, 0, 0, 0.16)",
+      value: "rgba(13, 13, 18, 0.16)",
     },
     "400": {
-      value: "rgba(0, 0, 0, 0.24)",
+      value: "rgba(13, 13, 18, 0.24)",
     },
     "500": {
-      value: "rgba(0, 0, 0, 0.36)",
+      value: "rgba(13, 13, 18, 0.36)",
     },
     "600": {
-      value: "rgba(0, 0, 0, 0.48)",
+      value: "rgba(13, 13, 18, 0.48)",
     },
     "700": {
-      value: "rgba(0, 0, 0, 0.64)",
+      value: "rgba(13, 13, 18, 0.64)",
     },
     "800": {
-      value: "rgba(0, 0, 0, 0.80)",
+      value: "rgba(13, 13, 18, 0.80)",
     },
     "900": {
-      value: "rgba(0, 0, 0, 0.92)",
+      value: "rgba(13, 13, 18, 0.92)",
     },
     "950": {
-      value: "rgba(0, 0, 0, 0.95)",
+      value: "rgba(13, 13, 18, 0.95)",
     },
   },
+  // Clean neutral — no warm tint
   gray: {
     "50": {
-      value: "#fafafa",
+      value: "#f9f9fb",
     },
     "100": {
-      value: "#f4f4f5",
+      value: "#f0f0f5",
     },
     "200": {
-      value: "#e4e4e7",
+      value: "#e2e2ec",
     },
     "300": {
-      value: "#d4d4d8",
+      value: "#c8c8d8",
     },
     "400": {
-      value: "#a1a1aa",
+      value: "#9898b0",
     },
     "500": {
-      value: "#71717a",
+      value: "#6e6e88",
     },
     "600": {
-      value: "#52525b",
+      value: "#515168",
     },
     "700": {
-      value: "#3f3f46",
+      value: "#3a3a4e",
     },
     "800": {
-      value: "#27272a",
+      value: "#252534",
     },
     "900": {
-      value: "#18181b",
+      value: "#16161f",
     },
     "950": {
-      value: "#111111",
+      value: "#0d0d12",
     },
   },
+  // Pomegranate — bold, jewel red
   red: {
     "50": {
-      value: "#fef2f2",
+      value: "#fff0f3",
     },
     "100": {
-      value: "#fee2e2",
+      value: "#ffd6de",
     },
     "200": {
-      value: "#fecaca",
+      value: "#ffacbb",
     },
     "300": {
-      value: "#fca5a5",
+      value: "#ff7591",
     },
     "400": {
-      value: "#f87171",
+      value: "#f74068",
     },
     "500": {
-      value: "#ef4444",
+      value: "#e01045",
     },
     "600": {
-      value: "#dc2626",
+      value: "#b80036",
     },
     "700": {
-      value: "#991919",
+      value: "#880029",
     },
     "800": {
-      value: "#511111",
+      value: "#56001a",
     },
     "900": {
-      value: "#300c0c",
+      value: "#33000f",
     },
     "950": {
-      value: "#1f0808",
+      value: "#1e0009",
     },
   },
+  // Burnt saffron — vivid, not yellow-muddy
   orange: {
     "50": {
-      value: "#fff7ed",
+      value: "#fff4ed",
     },
     "100": {
-      value: "#ffedd5",
+      value: "#ffe2cc",
     },
     "200": {
-      value: "#fed7aa",
+      value: "#ffc299",
     },
     "300": {
-      value: "#fdba74",
+      value: "#ff9860",
     },
     "400": {
-      value: "#fb923c",
+      value: "#ff6b2b",
     },
     "500": {
-      value: "#f97316",
+      value: "#f04800",
     },
     "600": {
-      value: "#ea580c",
+      value: "#cc3800",
     },
     "700": {
-      value: "#92310a",
+      value: "#9a2900",
     },
     "800": {
-      value: "#6c2710",
+      value: "#651b00",
     },
     "900": {
-      value: "#3b1106",
+      value: "#3b1000",
     },
     "950": {
-      value: "#220a04",
+      value: "#220900",
     },
   },
+  // Marigold — vivid festival yellow, not muddy turmeric
   yellow: {
     "50": {
-      value: "#fefce8",
+      value: "#fffbea",
     },
     "100": {
-      value: "#fef9c3",
+      value: "#fff3c0",
     },
     "200": {
-      value: "#fef08a",
+      value: "#ffe880",
     },
     "300": {
-      value: "#fde047",
+      value: "#ffd633",
     },
     "400": {
-      value: "#facc15",
+      value: "#ffc400",
     },
     "500": {
-      value: "#eab308",
+      value: "#e6a800",
     },
     "600": {
-      value: "#ca8a04",
+      value: "#c48600",
     },
     "700": {
-      value: "#845209",
+      value: "#8f6000",
     },
     "800": {
-      value: "#713f12",
+      value: "#5a3c00",
     },
     "900": {
-      value: "#422006",
+      value: "#332200",
     },
     "950": {
-      value: "#281304",
+      value: "#1e1400",
     },
   },
+  // Emerald — lush, jewel green
   green: {
     "50": {
-      value: "#f0fdf4",
+      value: "#edfff6",
     },
     "100": {
-      value: "#dcfce7",
+      value: "#ccfce7",
     },
     "200": {
-      value: "#bbf7d0",
+      value: "#96f8cc",
     },
     "300": {
-      value: "#86efac",
+      value: "#52edaa",
     },
     "400": {
-      value: "#4ade80",
+      value: "#18d986",
     },
     "500": {
-      value: "#22c55e",
+      value: "#00b86a",
     },
     "600": {
-      value: "#16a34a",
+      value: "#009453",
     },
     "700": {
-      value: "#116932",
+      value: "#00693b",
     },
     "800": {
-      value: "#124a28",
+      value: "#004426",
     },
     "900": {
-      value: "#042713",
+      value: "#002817",
     },
     "950": {
-      value: "#03190c",
+      value: "#00180d",
     },
   },
+  // Peacock teal — the crown jewel of Indian-Jewish color
   teal: {
     "50": {
-      value: "#f0fdfa",
+      value: "#e8fffe",
     },
     "100": {
-      value: "#ccfbf1",
+      value: "#b8faf8",
     },
     "200": {
-      value: "#99f6e4",
+      value: "#72f3ef",
     },
     "300": {
-      value: "#5eead4",
+      value: "#22e4de",
     },
     "400": {
-      value: "#2dd4bf",
+      value: "#00cac4",
     },
     "500": {
-      value: "#14b8a6",
+      value: "#00a8a2",
     },
     "600": {
-      value: "#0d9488",
+      value: "#008480",
     },
     "700": {
-      value: "#0c5d56",
+      value: "#005e5a",
     },
     "800": {
-      value: "#114240",
+      value: "#003c3a",
     },
     "900": {
-      value: "#032726",
+      value: "#002422",
     },
     "950": {
-      value: "#021716",
+      value: "#001614",
     },
   },
+  // Sapphire — Star of David, Israeli sky
   blue: {
     "50": {
-      value: "#eff6ff",
+      value: "#edf4ff",
     },
     "100": {
-      value: "#dbeafe",
+      value: "#cfe1ff",
     },
     "200": {
-      value: "#bfdbfe",
+      value: "#a0c4ff",
     },
     "300": {
-      value: "#a3cfff",
+      value: "#60a1ff",
     },
     "400": {
-      value: "#60a5fa",
+      value: "#2878ff",
     },
     "500": {
-      value: "#3b82f6",
+      value: "#0057f5",
     },
     "600": {
-      value: "#2563eb",
+      value: "#0042cc",
     },
     "700": {
-      value: "#173da6",
+      value: "#002f99",
     },
     "800": {
-      value: "#1a3478",
+      value: "#001e64",
     },
     "900": {
-      value: "#14204a",
+      value: "#00113a",
     },
     "950": {
-      value: "#0c142e",
+      value: "#000a22",
     },
   },
+  // Cerulean — Mediterranean sea
   cyan: {
     "50": {
-      value: "#ecfeff",
+      value: "#eafaff",
     },
     "100": {
-      value: "#cffafe",
+      value: "#c5f2ff",
     },
     "200": {
-      value: "#a5f3fc",
+      value: "#86e6ff",
     },
     "300": {
-      value: "#67e8f9",
+      value: "#33d3ff",
     },
     "400": {
-      value: "#22d3ee",
+      value: "#00bcf2",
     },
     "500": {
-      value: "#06b6d4",
+      value: "#009ccc",
     },
     "600": {
-      value: "#0891b2",
+      value: "#007aa8",
     },
     "700": {
-      value: "#0c5c72",
+      value: "#005578",
     },
     "800": {
-      value: "#134152",
+      value: "#00374e",
     },
     "900": {
-      value: "#072a38",
+      value: "#002130",
     },
     "950": {
-      value: "#051b24",
+      value: "#00131c",
     },
   },
+  // Amethyst — Indian royalty, Purim costume purple
   purple: {
     "50": {
-      value: "#faf5ff",
+      value: "#faf0ff",
     },
     "100": {
-      value: "#f3e8ff",
+      value: "#f2d4ff",
     },
     "200": {
-      value: "#e9d5ff",
+      value: "#e4a8ff",
     },
     "300": {
-      value: "#d8b4fe",
+      value: "#d06eff",
     },
     "400": {
-      value: "#c084fc",
+      value: "#ba30ff",
     },
     "500": {
-      value: "#a855f7",
+      value: "#9e00f0",
     },
     "600": {
-      value: "#9333ea",
+      value: "#7c00c4",
     },
     "700": {
-      value: "#641ba3",
+      value: "#590090",
     },
     "800": {
-      value: "#4a1772",
+      value: "#38005c",
     },
     "900": {
-      value: "#2f0553",
+      value: "#210036",
     },
     "950": {
-      value: "#1a032e",
+      value: "#130020",
     },
   },
+  // Magenta — Indian festival ink, vivid and alive
   pink: {
     "50": {
-      value: "#fdf2f8",
+      value: "#fff0fb",
     },
     "100": {
-      value: "#fce7f3",
+      value: "#ffd4f5",
     },
     "200": {
-      value: "#fbcfe8",
+      value: "#ffa8ec",
     },
     "300": {
-      value: "#f9a8d4",
+      value: "#ff6cdf",
     },
     "400": {
-      value: "#f472b6",
+      value: "#f030ca",
     },
     "500": {
-      value: "#ec4899",
+      value: "#cc00aa",
     },
     "600": {
-      value: "#db2777",
+      value: "#a30088",
     },
     "700": {
-      value: "#a41752",
+      value: "#750062",
     },
     "800": {
-      value: "#6d0e34",
+      value: "#4a003e",
     },
     "900": {
-      value: "#45061f",
+      value: "#2b0024",
     },
     "950": {
-      value: "#2c0514",
+      value: "#190015",
     },
   },
 })

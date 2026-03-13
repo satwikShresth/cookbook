@@ -73,7 +73,7 @@ export const colors = defineSemanticTokens.colors({
     muted: {
       value: {
         _light: "{colors.gray.600}",
-        _dark: "{colors.gray.400}",
+        _dark: "{colors.gray.300}",
       },
     },
     subtle: {
@@ -90,8 +90,8 @@ export const colors = defineSemanticTokens.colors({
     },
     error: {
       value: {
-        _light: "{colors.red.500}",
-        _dark: "{colors.red.400}",
+        _light: "{colors.red.600}",
+        _dark: "{colors.red.300}",
       },
     },
     warning: {
@@ -117,30 +117,30 @@ export const colors = defineSemanticTokens.colors({
     DEFAULT: {
       value: {
         _light: "{colors.gray.200}",
-        _dark: "{colors.gray.800}",
+        _dark: "{colors.gray.700}",
       },
     },
     muted: {
       value: {
         _light: "{colors.gray.100}",
-        _dark: "{colors.gray.900}",
+        _dark: "{colors.gray.800}",
       },
     },
     subtle: {
       value: {
         _light: "{colors.gray.50}",
-        _dark: "{colors.gray.950}",
+        _dark: "{colors.gray.900}",
       },
     },
     emphasized: {
       value: {
         _light: "{colors.gray.300}",
-        _dark: "{colors.gray.700}",
+        _dark: "{colors.gray.600}",
       },
     },
     inverted: {
       value: {
-        _light: "{colors.gray.800}",
+        _light: "{colors.gray.700}",
         _dark: "{colors.gray.200}",
       },
     },
@@ -179,7 +179,7 @@ export const colors = defineSemanticTokens.colors({
     fg: {
       value: {
         _light: "{colors.gray.800}",
-        _dark: "{colors.gray.200}",
+        _dark: "{colors.gray.100}",
       },
     },
     subtle: {
@@ -202,14 +202,14 @@ export const colors = defineSemanticTokens.colors({
     },
     solid: {
       value: {
-        _light: "{colors.gray.900}",
-        _dark: "{colors.white}",
+        _light: "{colors.gray.700}",
+        _dark: "{colors.gray.100}",
       },
     },
     focusRing: {
       value: {
-        _light: "{colors.gray.400}",
-        _dark: "{colors.gray.400}",
+        _light: "{colors.teal.500}",
+        _dark: "{colors.teal.400}",
       },
     },
   },
