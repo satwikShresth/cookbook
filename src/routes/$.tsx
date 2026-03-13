@@ -1,12 +1,13 @@
 import { createFileRoute, notFound, Link } from '@tanstack/react-router'
-import { Box, Flex, Text, Separator } from '@chakra-ui/react'
-import { useFontSize } from '#/utils'
+import { Box, Flex, Text, Separator, Badge } from '@chakra-ui/react'
+import { useFontSize, UI_FONT_SIZE, navStore } from '#/utils'
 import { BreadcrumbRoot, BreadcrumbLink, BreadcrumbCurrentLink } from '#/components/ui/breadcrumb'
 import { getCookbookFileBySlug } from '#/utils'
 import { Markdown } from '#/components/Markdown'
 import { TableOfContents } from '#/components/TableOfContents'
 import { Backlinks } from '#/components/Backlinks'
 import { Graph } from '#/components/Graph'
+import type { Cookbook } from 'content-collections'
 
 export const Route = createFileRoute('/$')({
   loader: ({ params }) => {
@@ -53,10 +54,100 @@ function RightSidebar({ slug, headings }: { slug: string; headings: NonNullable<
   )
 }
 
-const H1_SIZE: Record<string, object> = {
-  sm: { base: 'xl', md: '2xl' },
-  md: { base: '2xl', md: '3xl' },
-  lg: { base: '3xl', md: '4xl' },
+const H1_SIZE: Record<string, string> = {
+  sm: '3xl',
+  md: '4xl',
+  lg: '5xl',
+}
+
+// ── Wikilink parser (display text + optional target) ─────────────────────────
+
+function parseWikilink(value: string): { display: string; target: string | null } {
+  const m = value.match(/^\[\[([^\]|#]+?)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]$/)
+  if (!m) return { display: value, target: null }
+  const rawTarget = m[1].trim()
+  const display = m[2]?.trim() ?? rawTarget
+  const slug = navStore.state.fileMap[
+    Object.keys(navStore.state.fileMap).find((k) => {
+      const last = k.split('/').at(-1) ?? k
+      const targetLast = rawTarget.split('/').at(-1) ?? rawTarget
+      return last.toLowerCase() === targetLast.replace(/\s/g, '-').toLowerCase()
+    }) ?? ''
+  ]?.slug ?? null
+  return { display, target: slug }
+}
+
+// ── Recipe meta bar ──────────────────────────────────────────────────────────
+
+function RecipeMetaBar({ doc }: { doc: Cookbook }) {
+  const { size } = useFontSize()
+  const uiSize = UI_FONT_SIZE[size]
+
+  const displayTags = doc.tags.filter((t) => t !== 'recipe')
+  const chefInfo = doc.chef ? parseWikilink(doc.chef) : null
+
+  // Build the single meta line: "cuisine · time · serves N · by chef"
+  const metaParts: (string | React.ReactNode)[] = []
+  if (doc.cuisine) metaParts.push(doc.cuisine)
+  if (doc.time) metaParts.push(doc.time)
+  if (doc.servings) metaParts.push(`serves ${doc.servings}`)
+  if (chefInfo) {
+    metaParts.push(
+      chefInfo.target ? (
+        <Link key="chef" to="/$" params={{ _splat: chefInfo.target }}>
+          <Text as="span" _hover={{ textDecoration: 'underline' }}>
+            {chefInfo.display}
+          </Text>
+        </Link>
+      ) : chefInfo.display
+    )
+  }
+
+  const hasAnyMeta = metaParts.length > 0 || displayTags.length > 0
+  if (!hasAnyMeta) return null
+
+  return (
+    <Box mb="5" display="flex" flexDirection="column" gap="2.5">
+      {/* Single muted meta line */}
+      {metaParts.length > 0 && (
+        <Text
+          fontSize={uiSize}
+          color="fg.subtle"
+          fontStyle="italic"
+          transition="font-size 0.15s ease"
+        >
+          {metaParts.map((part, i) => (
+            <span key={i}>
+              {i > 0 && <span style={{ margin: '0 0.35em', opacity: 0.5 }}>·</span>}
+              {part}
+            </span>
+          ))}
+        </Text>
+      )}
+
+      {/* Plain tag pills */}
+      {displayTags.length > 0 && (
+        <Flex gap="1.5" flexWrap="wrap">
+          {displayTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="outline"
+              colorPalette="gray"
+              textTransform="none"
+              fontSize={uiSize}
+              fontWeight="400"
+              borderRadius="full"
+              px="2.5"
+              py="0.5"
+              letterSpacing="0"
+            >
+              #{tag}
+            </Badge>
+          ))}
+        </Flex>
+      )}
+    </Box>
+  )
 }
 
 function FilePage() {
@@ -71,15 +162,17 @@ function FilePage() {
           <SlugBreadcrumb slug={slug} />
           <Text
             as="h1"
+            fontFamily="heading"
             fontSize={H1_SIZE[size]}
             fontWeight="700"
-            letterSpacing="-0.03em"
-            lineHeight="1.15"
-            mt="3"
-            mb="0"
+            letterSpacing="-0.01em"
+            lineHeight="1.1"
+            mt="2"
+            mb="2"
           >
             {fileContent.name}
           </Text>
+          <RecipeMetaBar doc={fileContent} />
         </Box>
 
         <Markdown html={fileContent.html} />

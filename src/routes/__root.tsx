@@ -31,7 +31,7 @@ function RootLayout() {
             h="100vh"
             alignSelf="flex-start"
             borderRightWidth="1px"
-            borderColor="border"
+            borderColor="border.muted"
           >
             <Sidebar />
           </Box>

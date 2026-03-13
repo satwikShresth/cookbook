@@ -10,20 +10,17 @@ export type { Cookbook }
 export interface CookbookFile {
   slug: string
   name: string
-  isIndex: boolean
   tags: string[]
 }
 
 export interface CookbookSection {
   slug: string
   name: string
-  indexSlug: string | null
   files: CookbookFile[]
 }
 
 export interface NavState {
   sections: CookbookSection[]
-  rootIndexSlug: string | null
   backlinks: Record<string, string[]>
   edges: { source: string; target: string }[]
   fileMap: Record<string, Cookbook>
@@ -47,34 +44,27 @@ function buildNavState(): NavState {
   const sectionMap = new Map<string, CookbookSection>()
 
   for (const doc of allCookbooks) {
+    if (doc.isIndex) continue
+
     const sectionName = doc.section
     const topSlug = doc.slug.split('/')[0]
 
     if (!sectionMap.has(sectionName)) {
-      sectionMap.set(sectionName, {
-        slug: topSlug,
-        name: sectionName,
-        indexSlug: null,
-        files: [],
-      })
+      sectionMap.set(sectionName, { slug: topSlug, name: sectionName, files: [] })
     }
 
-    const section = sectionMap.get(sectionName)!
-    if (doc.isIndex) {
-      section.indexSlug = doc.slug
-    } else {
-      section.files.push({ slug: doc.slug, name: doc.name, isIndex: false, tags: doc.tags ?? [] })
-    }
+    sectionMap.get(sectionName)!.files.push({
+      slug: doc.slug,
+      name: doc.name,
+      tags: doc.tags ?? [],
+    })
   }
-
-  const overviewSection = sectionMap.get('Overview')
-  const rootIndexSlug = overviewSection?.indexSlug ?? null
 
   const sections = Array.from(sectionMap.values()).filter(
     (s) => s.name !== 'Overview' || s.files.length > 0,
   )
 
-  return { sections, rootIndexSlug, backlinks, edges, fileMap }
+  return { sections, backlinks, edges, fileMap }
 }
 
 // ── Store — initialised once at module load time ─────────────────────────────

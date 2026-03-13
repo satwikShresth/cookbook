@@ -26,26 +26,22 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeKatex from 'rehype-katex'
 import rehypeStringify from 'rehype-stringify'
-import { parse as parseYaml } from 'yaml'
 import { visit } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
 import type { Element } from 'hast'
 import type { Root, Text, Parent } from 'mdast'
 import type { Plugin } from 'unified'
 
-// ── Frontmatter helpers ────────────────────────────────────────────────────────
-
-function extractFrontmatterTags(content: string): string[] {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
-  if (!match) return []
-  try {
-    const fm = parseYaml(match[1])
-    if (Array.isArray(fm?.tags)) return fm.tags.map(String)
-    if (typeof fm?.tags === 'string') return [fm.tags]
-  } catch {
-    // ignore malformed frontmatter
+// Extract wikilinks from any string value (e.g. [[Chefs|Janis]])
+// Used to find wikilinks in frontmatter string fields like `chef`
+function extractWikilinksFromString(value: string): string[] {
+  const fps: string[] = []
+  wikilinkExtractRegex.lastIndex = 0
+  for (const m of value.matchAll(wikilinkExtractRegex)) {
+    const fp = m[1]?.trim()
+    if (fp) fps.push(fp)
   }
-  return []
+  return fps
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -232,9 +228,9 @@ function remarkWikilinks(resolveSlug: (raw: string) => string | null): Plugin<[]
 
 // ── Collection definition ─────────────────────────────────────────────────────
 
-// Module-level cache: collection.documents() cannot be called concurrently
-// across parallel transforms, so we resolve it once and share the result.
-let slugStubsCache: SlugStub[] | null = null
+// Module-level promise: ensures collection.documents() is only called once
+// even when multiple transforms run concurrently.
+let slugStubsPromise: Promise<SlugStub[]> | null = null
 
 const cookbook = defineCollection({
   name: 'cookbook',
@@ -243,6 +239,11 @@ const cookbook = defineCollection({
   exclude: ['.obsidian/**'],
   schema: z.object({
     content: z.string(),
+    tags: z.union([z.array(z.string()), z.string()]).optional(),
+    cuisine: z.string().optional(),
+    time: z.string().optional(),
+    servings: z.union([z.number(), z.string()]).optional(),
+    chef: z.string().optional(),
   }),
   transform: async (doc, { cache, collection }): Promise<{
     slug: string
@@ -250,6 +251,10 @@ const cookbook = defineCollection({
     isIndex: boolean
     name: string
     tags: string[]
+    cuisine?: string
+    time?: string
+    servings?: number | string
+    chef?: string
     rawLinks: string[]
     resolvedLinks: string[]
     html: string
@@ -260,17 +265,23 @@ const cookbook = defineCollection({
     const section = deriveSectionName(filePath)
     const isIndex = doc._meta.fileName.toLowerCase() === 'index.md'
     const name = isIndex ? section : doc._meta.fileName.replace(/\.md$/, '')
-    const rawLinks = extractWikilinks(doc.content)
-    const tags = extractFrontmatterTags(doc.content)
 
-    // Build slug stubs once across all transforms
-    if (!slugStubsCache) {
-      const allDocs = await collection.documents()
-      slugStubsCache = allDocs.map((d) => ({
-        slug: deriveSlug(d._meta.filePath),
-      }))
+    // Tags from frontmatter (content-collections strips frontmatter before passing content)
+    const tags = Array.isArray(doc.tags) ? doc.tags.map(String) : doc.tags ? [String(doc.tags)] : []
+
+    // Extract wikilinks from body + any wikilinks in frontmatter string fields
+    const bodyLinks = extractWikilinks(doc.content)
+    const fmStringValues = [doc.chef].filter((v): v is string => typeof v === 'string')
+    const fmLinks = fmStringValues.flatMap(extractWikilinksFromString)
+    const rawLinks = [...new Set([...bodyLinks, ...fmLinks])]
+
+    // Build slug stubs once across all transforms using a shared promise
+    if (!slugStubsPromise) {
+      slugStubsPromise = collection.documents().then((docs) =>
+        docs.map((d) => ({ slug: deriveSlug(d._meta.filePath) }))
+      )
     }
-    const slugStubs = slugStubsCache
+    const slugStubs = await slugStubsPromise
     const resolveSlug = (raw: string) => resolveWikilink(raw, slugStubs)
 
     const { html, headings } = await cache(doc.content, async (content) => {
@@ -349,6 +360,10 @@ const cookbook = defineCollection({
       isIndex,
       name,
       tags,
+      cuisine: doc.cuisine,
+      time: doc.time,
+      servings: doc.servings,
+      chef: doc.chef,
       rawLinks,
       resolvedLinks,
       html,

@@ -29,10 +29,7 @@ export function Graph({ slug }: Props) {
     const container = containerRef.current
     if (!container) return
 
-    const allFiles = nav.sections.flatMap((s) => [
-      ...(s.indexSlug ? [{ slug: s.indexSlug, name: s.name }] : []),
-      ...s.files,
-    ])
+    const allFiles = nav.sections.flatMap((s) => s.files)
 
     // Collect neighbour slugs (depth-1)
     const neighborSlugs = new Set<string>()

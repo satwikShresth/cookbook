@@ -15,10 +15,7 @@ export function Backlinks({ slug }: Props) {
 
   if (!backlinkSlugs.length) return null
 
-  const allFiles = nav.sections.flatMap((s) => [
-    ...(s.indexSlug ? [{ slug: s.indexSlug, name: s.name, isIndex: true }] : []),
-    ...s.files,
-  ])
+  const allFiles = nav.sections.flatMap((s) => s.files)
   const backlinkFiles = backlinkSlugs
     .map((s) => allFiles.find((f) => f.slug === s))
     .filter(Boolean) as typeof allFiles
@@ -54,8 +51,8 @@ export function Backlinks({ slug }: Props) {
               transition="all 0.15s ease"
               _hover={{ bg: 'bg.muted', color: 'fg' }}
             >
-              <Box as="span" color="fg.subtle" mr="0.5">#</Box>
-              {f.slug}
+              <Box as="span" color="fg.subtle" mr="1">←</Box>
+              {f.name}
             </Box>
           </Link>
         ))}

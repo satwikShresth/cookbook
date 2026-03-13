@@ -1,7 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Box, Center, Heading, Text } from '@chakra-ui/react'
-import { getCookbookFileBySlug, cookbookNav } from '#/utils'
-import { Markdown } from '#/components/Markdown'
+import { Center, Heading, Text } from '@chakra-ui/react'
 import { useFontSize } from '#/utils'
 
 export const Route = createFileRoute('/')({
@@ -12,17 +10,6 @@ const HEADING_SIZE: Record<string, string> = { sm: '3xl', md: '4xl', lg: '5xl' }
 
 function IndexPage() {
   const { size } = useFontSize()
-  const fileContent = cookbookNav.rootIndexSlug
-    ? getCookbookFileBySlug('overview')
-    : null
-
-  if (fileContent) {
-    return (
-      <Box as="article" maxW="2xl">
-        <Markdown html={fileContent.html} />
-      </Box>
-    )
-  }
 
   return (
     <Center flexDirection="column" textAlign="center" py="20" gap="3">

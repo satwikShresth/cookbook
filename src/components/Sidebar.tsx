@@ -14,9 +14,10 @@ import {
 import { ColorModeButton } from '#/components/ui/color-mode'
 import { Tooltip } from '#/components/ui/tooltip'
 import { FontSizeToggle } from '#/components/FontSizeToggle'
-import { useFontSize, UI_FONT_SIZE, useNav } from '#/utils'
+import { useFontSize, UI_FONT_SIZE, LABEL_FONT_SIZE, useNav, useSearchQuery, useActiveTags } from '#/utils'
 import type { CookbookSection } from '#/utils'
-import { LuGithub, LuSearch, LuX, LuChevronRight, LuFileText } from 'react-icons/lu'
+import { SearchBar } from '#/components/SearchBar'
+import { LuGithub, LuChevronRight } from 'react-icons/lu'
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -33,12 +34,11 @@ interface NavNode {
 function buildCollection(sections: CookbookSection[]) {
   const children: NavNode[] = sections.map((section) => {
     if (section.files.length === 0) {
-      return { id: section.slug, name: section.name, slug: section.indexSlug ?? section.slug }
+      return { id: section.slug, name: section.name, slug: section.slug }
     }
     return {
       id: section.slug,
       name: section.name,
-      slug: section.indexSlug,
       children: section.files.map((f) => ({ id: f.slug, name: f.name, slug: f.slug, tags: f.tags })),
     }
   })
@@ -50,69 +50,9 @@ function buildCollection(sections: CookbookSection[]) {
   })
 }
 
-// ── Search box ─────────────────────────────────────────────────────────────
-
-function SearchBox({
-  value,
-  onChange,
-}: {
-  value: string
-  onChange: (v: string) => void
-}) {
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  return (
-    <Flex
-      align="center"
-      gap="1.5"
-      px="2.5"
-      h="8"
-      borderWidth="1px"
-      borderColor="border"
-      borderRadius="md"
-      bg="bg.subtle"
-      cursor="text"
-      onClick={() => inputRef.current?.focus()}
-      _focusWithin={{ borderColor: 'colorPalette.solid', bg: 'bg' }}
-      transition="border-color 0.15s, background 0.15s"
-    >
-      <LuSearch size={13} style={{ flexShrink: 0, opacity: 0.5 }} />
-      <input
-        ref={inputRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Search…"
-        style={{
-          flex: 1,
-          minWidth: 0,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          fontSize: '0.75rem',
-          color: 'inherit',
-        }}
-      />
-      {value && (
-        <Box
-          as="button"
-          onClick={(e: React.MouseEvent) => { e.stopPropagation(); onChange('') }}
-          display="flex"
-          alignItems="center"
-          opacity={0.5}
-          _hover={{ opacity: 1 }}
-          flexShrink={0}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit' }}
-        >
-          <LuX size={12} />
-        </Box>
-      )}
-    </Flex>
-  )
-}
-
 // ── Section / file icons ────────────────────────────────────────────────────
 
-const leafIcon = <LuFileText size={12} style={{ flexShrink: 0, opacity: 0.4 }} />
+const leafIcon = null
 
 // ── Truncation-aware tooltip ─────────────────────────────────────────────────
 
@@ -127,11 +67,11 @@ function useTruncated() {
 
 // ── Branch item ──────────────────────────────────────────────────────────────
 
-function BranchItem({ node, nodeState, query, uiSize, onNavigate }: {
+function BranchItem({ node, nodeState, query, uiSize = 'xs', onNavigate }: {
   node: NavNode
   nodeState: { expanded: boolean }
   query: string
-  uiSize: string
+  uiSize?: string
   onNavigate?: () => void
 }) {
   const { ref, truncated, check } = useTruncated()
@@ -146,14 +86,16 @@ function BranchItem({ node, nodeState, query, uiSize, onNavigate }: {
     >
       <TreeView.BranchControl
         cursor="pointer"
-        _hover={{ bg: 'bg.subtle' }}
-        borderRadius="md"
-        px="2"
+        _hover={{ color: 'fg' }}
+        px="0"
         py="1"
+        mt="3"
         onMouseEnter={check}
+        color="fg.subtle"
+        transition="color 0.15s"
       >
         <LuChevronRight
-          size={13}
+          size={10}
           style={{
             flexShrink: 0,
             opacity: 0.5,
@@ -164,7 +106,9 @@ function BranchItem({ node, nodeState, query, uiSize, onNavigate }: {
         <TreeView.BranchText
           ref={ref as React.Ref<HTMLElement>}
           fontSize={uiSize}
-          fontWeight="500"
+          fontWeight="600"
+          textTransform="uppercase"
+          letterSpacing="0.09em"
           truncate
           transition="font-size 0.15s ease"
         >
@@ -175,12 +119,12 @@ function BranchItem({ node, nodeState, query, uiSize, onNavigate }: {
               onClick={(e) => { e.stopPropagation(); onNavigate?.() }}
               style={{ flex: 1, minWidth: 0 }}
             >
-              <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm', fontWeight: '600' }}>
+              <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm' }}>
                 {node.name}
               </Highlight>
             </Link>
           ) : (
-            <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm', fontWeight: '600' }}>
+            <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm' }}>
               {node.name}
             </Highlight>
           )}
@@ -200,41 +144,12 @@ function LeafItem({ node, currentSlug, query, uiSize, onNavigate }: {
   onNavigate?: () => void
 }) {
   const { ref, truncated, check } = useTruncated()
-  const tags = node.tags?.filter(t => t !== 'recipe') ?? []
   const isActive = currentSlug === node.slug
-
-  const tooltipContent = (truncated || tags.length > 0) ? (
-    <Flex direction="column" gap="1.5" maxW="200px">
-      {truncated && (
-        <Box fontSize="xs" fontWeight="500">{node.name}</Box>
-      )}
-      {tags.length > 0 && (
-        <Flex gap="1" flexWrap="wrap">
-          {tags.map(tag => (
-            <Box
-              key={tag}
-              as="span"
-              px="1.5"
-              py="0.5"
-              borderRadius="sm"
-              fontSize="2xs"
-              fontWeight="500"
-              bg="whiteAlpha.200"
-              letterSpacing="0.02em"
-              textTransform="capitalize"
-            >
-              {tag}
-            </Box>
-          ))}
-        </Flex>
-      )}
-    </Flex>
-  ) : undefined
 
   return (
     <Tooltip
-      content={tooltipContent}
-      disabled={!tooltipContent}
+      content={truncated ? node.name : undefined}
+      disabled={!truncated}
       positioning={{ placement: 'right' }}
       openDelay={300}
       showArrow
@@ -251,9 +166,12 @@ function LeafItem({ node, currentSlug, query, uiSize, onNavigate }: {
             ref={ref as React.Ref<HTMLElement>}
             fontSize={uiSize}
             fontWeight={isActive ? '500' : '400'}
+            fontFamily={isActive ? 'inherit' : 'inherit'}
             color={isActive ? 'fg' : 'fg.muted'}
             truncate
-            transition="font-size 0.15s ease"
+            transition="color 0.15s ease, font-size 0.15s ease"
+            _hover={{ color: 'fg' }}
+            pl="0"
           >
             <Highlight ignoreCase query={[query]} styles={{ bg: 'yellow.muted', color: 'yellow.fg', px: '0.5', borderRadius: 'sm', fontWeight: '600' }}>
               {node.name}
@@ -276,10 +194,29 @@ function NavTree({
 }) {
   const { size } = useFontSize()
   const uiSize = UI_FONT_SIZE[size]
+  const labelSize = LABEL_FONT_SIZE[size]
   const { contains } = useFilter({ sensitivity: 'base' })
   const { sections } = useNav()
 
+  // Read search state from the store
+  const rawQuery = useSearchQuery()
+  // '#foo' is tag-mode input — treat text query as empty in that case
+  const textQuery = rawQuery.startsWith('#') ? '' : rawQuery
+  const activeTags = useActiveTags()
+
   const baseCollection = useMemo(() => buildCollection(sections), [sections])
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    for (const section of sections) {
+      for (const file of section.files) {
+        for (const tag of file.tags) {
+          if (tag !== 'index') tagSet.add(tag)
+        }
+      }
+    }
+    return Array.from(tagSet).sort()
+  }, [sections])
 
   const defaultExpanded = useMemo(() =>
     baseCollection.rootNode.children
@@ -288,40 +225,42 @@ function NavTree({
     [baseCollection, currentSlug],
   )
 
-  const [collection, setCollection] = useState(baseCollection)
   const [expanded, setExpanded] = useState<string[]>(defaultExpanded)
-  const [query, setQuery] = useState('')
 
-  const search = (value: string) => {
-    setQuery(value)
-    if (!value) {
-      setCollection(baseCollection)
-      setExpanded(defaultExpanded)
-      return
-    }
-    const next = baseCollection.filter((node) => contains(node.name, value))
-    setCollection(next)
-    setExpanded(next.getBranchValues())
-  }
+  const isFiltering = textQuery.length > 0 || activeTags.length > 0
+
+  const collection = useMemo(() => {
+    if (!isFiltering) return baseCollection
+
+    return baseCollection.filter((node) => {
+      const matchesText = !textQuery || contains(node.name, textQuery)
+      const matchesTags = activeTags.length === 0 || (node.tags ? activeTags.every((t) => node.tags!.includes(t)) : false)
+      return matchesText && matchesTags
+    })
+  }, [baseCollection, textQuery, activeTags, isFiltering, contains])
+
+  // When filtering: auto-expand all matched branches.
+  // When not filtering: use the user's manual expansion state.
+  const displayExpanded = isFiltering ? collection.getBranchValues() : expanded
 
   return (
     <>
-      <SearchBox value={query} onChange={search} />
-      <Box mt={2}>
+      <SearchBar allTags={allTags} />
+      <Box mt={4}>
         <TreeView.Root
           collection={collection}
           animateContent
           size="sm"
-          expandedValue={expanded}
+          expandedValue={displayExpanded}
           onExpandedChange={(d) => setExpanded(d.expandedValue)}
         >
           <TreeView.Tree>
             <TreeView.Node<NavNode>
               render={({ node, nodeState }) => {
                 if (nodeState.isBranch) {
-                  return <BranchItem node={node} nodeState={nodeState} query={query} uiSize={uiSize} onNavigate={onNavigate} />
+                  return <BranchItem node={node} nodeState={nodeState} query={textQuery} uiSize={labelSize} onNavigate={onNavigate} />
                 }
-                return <LeafItem node={node} currentSlug={currentSlug} query={query} uiSize={uiSize} onNavigate={onNavigate} />
+                return <LeafItem node={node} currentSlug={currentSlug} query={textQuery} uiSize={uiSize} onNavigate={onNavigate} />
               }}
             />
           </TreeView.Tree>
@@ -344,7 +283,7 @@ export function SidebarContent({
     <Box
       flex="1"
       overflowY="auto"
-      px="3"
+      px="5"
       pb="6"
       css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
     >
@@ -361,27 +300,38 @@ export function Sidebar() {
 
   return (
     <Flex direction="column" h="100vh" overflow="hidden">
-      <Flex px="4" pt="6" pb="3" flexShrink={0} align="flex-start" justify="space-between" gap="2">
+      {/* Site title */}
+      <Box px="5" pt="7" pb="5" flexShrink={0}>
         <Link to="/">
-          <Text fontWeight="700" fontSize="lg" letterSpacing="-0.02em" lineHeight="1.2">
+          <Text
+            fontFamily="heading"
+            fontWeight="500"
+            fontSize="xl"
+            letterSpacing="-0.01em"
+            lineHeight="1.25"
+            color="fg"
+            _hover={{ color: 'fg.muted' }}
+            transition="color 0.15s"
+          >
             Yankele's Cookbook
           </Text>
         </Link>
 
-        <Flex align="center" gap="0.5" flexShrink={0} mt="0.5">
+        {/* Controls row */}
+        <Flex align="center" gap="0" mt="2" ml="-1.5">
           <ChakraLink
             href="https://github.com/satwikShresth/cookbook"
             target="_blank"
             rel="noreferrer"
           >
-            <IconButton size="xs" variant="ghost">
+            <IconButton size="xs" variant="ghost" color="fg.subtle" _hover={{ color: 'fg' }}>
               <LuGithub />
             </IconButton>
           </ChakraLink>
-          <ColorModeButton size="xs" variant="ghost" />
+          <ColorModeButton size="xs" variant="ghost" color="fg.subtle" />
           <FontSizeToggle size="xs" />
         </Flex>
-      </Flex>
+      </Box>
 
       <SidebarContent currentSlug={currentSlug} />
     </Flex>
